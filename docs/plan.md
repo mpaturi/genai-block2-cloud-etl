@@ -57,6 +57,10 @@ These modules are imported unchanged from Block 1. No adaptation, no inlining. T
 
 Copies `validations.py`, `transforms.py`, `schemas.py`, and `concepts.py` from the Block 1 repo into a zip file (`glue/pipeline_lib.zip`). The zip is uploaded to S3 by Terraform (`aws_s3_object`), not by this script.
 
+### `glue/smoke_test.py`
+
+Minimal Glue job that prints Python/Spark versions, imports all 4 modules (`validations`, `transforms`, `schemas`, `concepts`), and prints "imports OK". Run once after `terraform apply` to verify the zip works in the Glue runtime. Deleted from S3 after passing.
+
 ### `scripts/upload_raw.py`
 
 Uploads Block 1's `data/raw/*.csv` to the S3 landing zone using `boto3`.
@@ -67,8 +71,8 @@ All AWS infrastructure defined as Terraform HCL:
 
 - `main.tf` — provider config, backend
 - `s3.tf` — bucket, versioning, lifecycle rules
-- `iam.tf` — Glue execution role with S3 + Catalog + CloudWatch Logs permissions
-- `glue.tf` — Glue database, catalog table, ETL job
+- `iam.tf` — Glue execution role with least-privilege policy: `s3:GetObject` (raw/*, scripts/*), `s3:PutObject`/`s3:DeleteObject` (processed/*), `s3:ListBucket` — all scoped to pipeline bucket ARN; Glue Catalog scoped to `omop_cloud_etl` database; CloudWatch Logs
+- `glue.tf` — Glue database, catalog table (with partition projection for `year_of_birth_band`), ETL job (pinned to `glue_version = "5.0"` for Spark 4.0 / Python 3.11), `aws_s3_object` for `etl_job.py` and `pipeline_lib.zip`
 - `athena.tf` — Athena workgroup with query result location
 - `variables.tf` — parameterized inputs (bucket name, region, tags)
 - `outputs.tf` — bucket ARN, Glue job name, Athena workgroup name
@@ -81,8 +85,9 @@ Triggers the Glue job via `boto3` and polls for completion. Provides a single lo
 
 1. `python scripts/package_lib.py` — create `glue/pipeline_lib.zip` from Block 1 modules
 2. `terraform apply` — create all AWS resources and upload job script + zip to S3
-3. `python scripts/upload_raw.py` — upload Block 1 CSVs to S3 landing zone
-4. `python scripts/run_glue_job.py` — trigger the Glue job and poll for completion
+3. Run `glue/smoke_test.py` as a one-off Glue job — verify all 4 modules import correctly in the Glue runtime and confirm Python/Spark versions
+4. `python scripts/upload_raw.py` — upload Block 1 CSVs to S3 landing zone
+5. `python scripts/run_glue_job.py` — trigger the Glue job and poll for completion
 
 ## Porting strategy
 
@@ -113,9 +118,10 @@ The core PySpark modules are not modified. `etl_job.py` imports and calls them e
 Block 2 testing differs from Block 1. The PySpark logic is already tested in Block 1 (103 tests). Block 2 testing focuses on:
 
 1. **Terraform validation**: `terraform validate` and `terraform plan` confirm the infrastructure is syntactically correct and produces the expected resource graph.
-2. **End-to-end cloud test**: upload CSVs → run Glue job → verify output exists in S3 → query via Athena.
-3. **Idempotency test**: run the Glue job twice, confirm output is identical.
-4. **Metrics verification**: compare `pipeline_metrics.json` from S3 against Block 1's expected metrics (row counts should match).
+2. **Smoke test**: run `glue/smoke_test.py` as a one-off Glue job after `terraform apply` to verify all 4 modules import correctly and confirm Python/Spark versions match Block 1.
+3. **End-to-end cloud test**: upload CSVs → run Glue job → verify output exists in S3 → query via Athena.
+4. **Idempotency test**: run the Glue job twice, confirm output is identical.
+5. **Metrics verification**: compare `pipeline_metrics.json` from S3 against Block 1's expected metrics (row counts should match).
 
 ## Block boundaries
 
