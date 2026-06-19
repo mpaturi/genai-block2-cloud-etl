@@ -43,7 +43,14 @@
 - [ ] Implement `scripts/package_lib.py` to zip Block 1 modules
 - [ ] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
 - [ ] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
-- [ ] Verify modules are importable from the zip in a Glue job
+
+## Lib-zip smoke test
+
+- [ ] Write `glue/smoke_test.py` — minimal Glue job that imports all 4 modules and prints "imports OK"
+- [ ] Upload `smoke_test.py` to `s3://bucket/scripts/` (manual boto3 or aws cli)
+- [ ] Run smoke test as a one-off Glue job via console or `boto3`
+- [ ] Confirm job succeeds and logs show "imports OK"
+- [ ] Delete `smoke_test.py` from S3 after passing (cleanup)
 
 ## Glue ETL job
 
