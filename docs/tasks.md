@@ -77,5 +77,5 @@
 - [ ] Write README with architecture diagram
 - [ ] Document setup and prerequisites
 - [ ] Document cost estimate
-- [ ] Add AI-assisted workflow note
+
 - [ ] Review all docs for accuracy against implementation

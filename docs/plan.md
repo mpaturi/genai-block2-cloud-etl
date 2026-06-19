@@ -1,6 +1,6 @@
 # Block 2 Plan
 
-## Acceptance criteria (from study plan)
+## Acceptance criteria
 
 > **Project — Lift the pipeline to AWS**
 > Acceptance criteria (done = all true):

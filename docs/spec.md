@@ -4,7 +4,7 @@
 
 Cloud ETL — Lift the OMOP Batch Pipeline to AWS
 
-## Acceptance criteria (from study plan)
+## Acceptance criteria
 
 > **Project — Lift the pipeline to AWS**
 > Acceptance criteria (done = all true):
@@ -191,4 +191,4 @@ Block 2 is complete when:
 - Pipeline metrics are written to S3
 - The Glue job fails on validation gate violations (same behavior as Block 1)
 - README has an architecture diagram
-- README includes AI-assisted workflow note (per study plan)
+
