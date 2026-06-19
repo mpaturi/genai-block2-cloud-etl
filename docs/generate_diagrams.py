@@ -156,7 +156,7 @@ def draw_architecture():
 
     # IAM role
     _box(ax, 7.5, 5.5, 2.5, 0.8,
-         "IAM Role\nGlue execution\nS3 + Catalog + Logs + Athena",
+         "IAM Role\nGlue execution\nS3 + Catalog + Logs",
          COLORS["iam"], fontsize=7)
 
     _dashed_arrow(ax, 7.5, 6.0, 4.75, 7.6)

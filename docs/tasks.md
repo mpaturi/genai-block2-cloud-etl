@@ -22,7 +22,7 @@
 - [ ] Write `terraform/main.tf` — provider and backend config
 - [ ] Write `terraform/variables.tf` — bucket name, region, tags
 - [ ] Write `terraform/s3.tf` — S3 bucket, versioning, lifecycle
-- [ ] Write `terraform/iam.tf` — Glue execution role and policy (include Athena StartQueryExecution + GetQueryExecution for MSCK REPAIR TABLE)
+- [ ] Write `terraform/iam.tf` — Glue execution role and policy (S3 + Catalog + CloudWatch Logs)
 - [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job
 - [ ] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
 - [ ] Write `terraform/athena.tf` — Athena workgroup
@@ -53,7 +53,6 @@
 - [ ] Implement S3 Parquet write with `year_of_birth_band` partitioning
 - [ ] Implement hard gate (fail job if cleaned data has violations)
 - [ ] Write `pipeline_metrics.json` to S3
-- [ ] Run `MSCK REPAIR TABLE` via Athena after writing output
 - [ ] Accept job parameters (`--S3_BUCKET`, `--RAW_PREFIX`, `--PROCESSED_PREFIX`)
 - [ ] Verify Terraform `aws_s3_object` uploads `etl_job.py` to `s3://bucket/scripts/`
 

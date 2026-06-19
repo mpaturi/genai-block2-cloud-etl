@@ -42,7 +42,6 @@ Responsibilities:
 - call `transforms.build_analytic_person()` for joins and aggregations
 - write partitioned Parquet to S3
 - write `pipeline_metrics.json` to S3
-- run `MSCK REPAIR TABLE` via Athena to register new partitions
 
 ### `glue/pipeline_lib.zip`
 
@@ -68,7 +67,7 @@ All AWS infrastructure defined as Terraform HCL:
 
 - `main.tf` — provider config, backend
 - `s3.tf` — bucket, versioning, lifecycle rules
-- `iam.tf` — Glue execution role with S3 + Catalog + CloudWatch Logs + Athena permissions
+- `iam.tf` — Glue execution role with S3 + Catalog + CloudWatch Logs permissions
 - `glue.tf` — Glue database, catalog table, ETL job
 - `athena.tf` — Athena workgroup with query result location
 - `variables.tf` — parameterized inputs (bucket name, region, tags)

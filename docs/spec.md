@@ -110,7 +110,7 @@ WHERE year_of_birth_band = '1980s'
 LIMIT 10;
 ```
 
-Partition repair: the Glue job runs `MSCK REPAIR TABLE` via Athena after writing output, so new partitions are discovered without a separate crawler.
+Partition discovery: the Glue Catalog table uses Athena partition projection. Partition values are inferred from table properties (type, range, format) at query time — no MSCK REPAIR TABLE, no crawler, no Athena calls from the Glue job. Terraform configures the projection properties on the `aws_glue_catalog_table`.
 
 ## Infrastructure as code — Terraform
 
@@ -124,7 +124,7 @@ All AWS resources are defined in Terraform (no console clicks):
 | `aws_s3_bucket_versioning` | Optional, for auditability |
 | `aws_s3_bucket_lifecycle_configuration` | Expire old processed data after N days (cost control) |
 | `aws_iam_role` (Glue) | Execution role for the Glue job |
-| `aws_iam_role_policy` | S3 read/write + Glue Catalog + CloudWatch Logs + Athena (StartQueryExecution, GetQueryExecution for MSCK REPAIR TABLE) |
+| `aws_iam_role_policy` | S3 read/write + Glue Catalog + CloudWatch Logs |
 | `aws_glue_catalog_database` | `omop_cloud_etl` database |
 | `aws_glue_catalog_table` | `analytic_person` table definition |
 | `aws_s3_object` (etl_job.py) | Upload Glue job script to `s3://bucket/scripts/` |
