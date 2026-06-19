@@ -121,7 +121,7 @@ All AWS resources are defined in Terraform (no console clicks):
 | Resource | Purpose |
 |---|---|
 | `aws_s3_bucket` | Single bucket for raw + processed data |
-| `aws_s3_bucket_versioning` | Optional, for auditability |
+| `aws_s3_bucket_versioning` | Omitted; pipeline is idempotent and output is fully reproducible from source data, so versioning adds no value and avoids noncurrent-version storage accumulation |
 | `aws_s3_bucket_lifecycle_configuration` | Expire old processed data after N days (cost control) |
 | `aws_iam_role` (Glue) | Execution role for the Glue job |
 | `aws_iam_role_policy` | S3 read/write + Glue Catalog + CloudWatch Logs |
