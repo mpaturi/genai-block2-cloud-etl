@@ -32,18 +32,31 @@ The Block 2 flow:
 
 ### `glue/etl_job.py`
 
-The Glue job script. Adapts Block 1's pipeline logic for S3-backed I/O.
+The Glue job script. Handles S3 I/O and orchestration — mirrors `pipeline.py` from Block 1.
 
 Responsibilities:
 - read raw CSVs from S3 with explicit schemas
-- run validation checks on raw data (detection pass, log violations)
-- clean dirty rows, log before/after row counts
-- run validation on cleaned data (hard gate — fail job if violations remain)
-- build `analytic_person` via joins and aggregations
+- call `validations.validate_all()` on raw data (detection pass, log violations)
+- call `transforms.clean_all()` to drop dirty rows, log before/after row counts
+- call `validations.validate_all()` on cleaned data (hard gate — fail job if violations remain)
+- call `transforms.build_analytic_person()` for joins and aggregations
 - write partitioned Parquet to S3
 - write `pipeline_metrics.json` to S3
+- run `MSCK REPAIR TABLE` via Athena to register new partitions
 
-Uses Glue's built-in PySpark runtime. Block 1's validation and transform logic is ported inline (not imported from a separate package) to keep the Glue job self-contained.
+### `glue/pipeline_lib.zip`
+
+Block 1's core modules packaged as a zip for Glue's `--extra-py-files`:
+- `validations.py` — all validation checks (null, range, FK, date-order, duplicate)
+- `transforms.py` — cleaning functions, `build_analytic_person()` joins/aggregations
+- `schemas.py` — StructType definitions for all 6 tables + `analytic_person`
+- `concepts.py` — concept ID lookup dictionaries
+
+These modules are imported unchanged from Block 1. No adaptation, no inlining. This keeps the tested logic intact and reusable in later blocks (e.g., Block 8 capstone).
+
+### `scripts/package_lib.py`
+
+Copies `validations.py`, `transforms.py`, `schemas.py`, and `concepts.py` from the Block 1 repo into a zip file (`glue/pipeline_lib.zip`). The zip is uploaded to S3 by Terraform (`aws_s3_object`), not by this script.
 
 ### `scripts/upload_raw.py`
 
@@ -55,7 +68,7 @@ All AWS infrastructure defined as Terraform HCL:
 
 - `main.tf` — provider config, backend
 - `s3.tf` — bucket, versioning, lifecycle rules
-- `iam.tf` — Glue execution role with S3 + Catalog + CloudWatch Logs permissions
+- `iam.tf` — Glue execution role with S3 + Catalog + CloudWatch Logs + Athena permissions
 - `glue.tf` — Glue database, catalog table, ETL job
 - `athena.tf` — Athena workgroup with query result location
 - `variables.tf` — parameterized inputs (bucket name, region, tags)
@@ -65,21 +78,29 @@ All AWS infrastructure defined as Terraform HCL:
 
 Triggers the Glue job via `boto3` and polls for completion. Provides a single local command to kick off the cloud pipeline after upload.
 
+## Run order
+
+1. `python scripts/package_lib.py` — create `glue/pipeline_lib.zip` from Block 1 modules
+2. `terraform apply` — create all AWS resources and upload job script + zip to S3
+3. `python scripts/upload_raw.py` — upload Block 1 CSVs to S3 landing zone
+4. `python scripts/run_glue_job.py` — trigger the Glue job and poll for completion
+
 ## Porting strategy
 
 Block 1's PySpark logic ports to Glue with these changes:
 
 | Block 1 | Block 2 |
 |---|---|
-| `io_utils.read_*()` — local CSV reads | `spark.read.csv("s3://...")` with same schemas |
-| `io_utils.write_parquet()` — local write | `df.write.parquet("s3://...")` with overwrite mode |
+| `io_utils.read_*()` — local CSV reads | `etl_job.py` reads from S3 with same schemas |
+| `io_utils.write_parquet()` — local write | `etl_job.py` writes to S3 with overwrite mode |
 | `config.py` paths | Glue job parameters (`--S3_BUCKET`, `--RAW_PREFIX`, `--PROCESSED_PREFIX`) |
-| `pipeline.py` orchestration | `etl_job.py` — same stage order, adapted for S3 I/O |
-| `validations.py` logic | Ported inline into `etl_job.py` |
-| `transforms.py` logic | Ported inline into `etl_job.py` |
-| `schemas.py` definitions | Ported inline into `etl_job.py` |
+| `pipeline.py` orchestration | `etl_job.py` — same stage order, S3 I/O |
+| `validations.py` | Imported unchanged via `--extra-py-files` zip |
+| `transforms.py` | Imported unchanged via `--extra-py-files` zip |
+| `schemas.py` | Imported unchanged via `--extra-py-files` zip |
+| `concepts.py` | Imported unchanged via `--extra-py-files` zip |
 
-The validation and transform logic stays functionally identical. The main differences are S3 paths instead of local paths, and Glue job parameters instead of config constants.
+The core PySpark modules are not modified. `etl_job.py` imports and calls them exactly as `pipeline.py` does in Block 1, with S3 paths replacing local paths.
 
 ## Idempotency
 

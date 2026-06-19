@@ -156,7 +156,7 @@ def draw_architecture():
 
     # IAM role
     _box(ax, 7.5, 5.5, 2.5, 0.8,
-         "IAM Role\nGlue execution\nS3 + Catalog + Logs",
+         "IAM Role\nGlue execution\nS3 + Catalog + Logs + Athena",
          COLORS["iam"], fontsize=7)
 
     _dashed_arrow(ax, 7.5, 6.0, 4.75, 7.6)
@@ -227,7 +227,7 @@ def draw_terraform():
     modules = [
         (1.5, 4.2, "s3.tf\nBucket\nVersioning\nLifecycle", COLORS["s3"]),
         (4.0, 4.2, "iam.tf\nGlue Role\nPolicy", COLORS["iam"]),
-        (6.5, 4.2, "glue.tf\nDatabase\nTable\nJob", COLORS["glue"]),
+        (6.5, 4.2, "glue.tf\nDatabase · Table · Job\nS3 objects: etl_job.py\npipeline_lib.zip", COLORS["glue"]),
         (9.0, 4.2, "athena.tf\nWorkgroup\nResult location", COLORS["catalog"]),
     ]
     for mx, my, label, color in modules:
@@ -273,7 +273,7 @@ def draw_s3_layout():
          "analytic_person/\n  year_of_birth_band=1940s/\n"
          "  year_of_birth_band=1950s/\n  ...\npipeline_metrics.json"),
         (5.5, 5.5, "scripts/", COLORS["catalog"],
-         "etl_job.py"),
+         "etl_job.py\npipeline_lib.zip"),
     ]
 
     for px, py, title, color, contents in prefixes:

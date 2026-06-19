@@ -82,7 +82,7 @@ A single Glue job (`etl_job.py`) runs the same pipeline stages as Block 1:
 6. Write partitioned Parquet to `s3://bucket/processed/analytic_person/`
 7. Write `pipeline_metrics.json` to `s3://bucket/processed/`
 
-The job uses Glue's built-in PySpark runtime. Block 1's `validations.py` and `transforms.py` logic is adapted (not wrapped) to work with Glue's S3-backed I/O.
+The job uses Glue's built-in PySpark runtime. Block 1's core modules (`validations.py`, `transforms.py`, `schemas.py`, `concepts.py`) are packaged as a zip and uploaded to S3 alongside the job script. The Glue job references this zip via `--extra-py-files`, so the modules are importable as-is — no adaptation, no inlining. `etl_job.py` handles only S3 I/O and orchestration, mirroring `pipeline.py` from Block 1. This keeps the tested Block 1 logic intact and reusable in later blocks (e.g., Block 8 capstone).
 
 ### Idempotency
 
@@ -110,7 +110,7 @@ WHERE year_of_birth_band = '1980s'
 LIMIT 10;
 ```
 
-Partition repair: either the Glue job calls `MSCK REPAIR TABLE` via Athena, or a Glue crawler is configured to update partitions. Terraform defines whichever approach is chosen.
+Partition repair: the Glue job runs `MSCK REPAIR TABLE` via Athena after writing output, so new partitions are discovered without a separate crawler.
 
 ## Infrastructure as code — Terraform
 
@@ -124,10 +124,12 @@ All AWS resources are defined in Terraform (no console clicks):
 | `aws_s3_bucket_versioning` | Optional, for auditability |
 | `aws_s3_bucket_lifecycle_configuration` | Expire old processed data after N days (cost control) |
 | `aws_iam_role` (Glue) | Execution role for the Glue job |
-| `aws_iam_role_policy` | S3 read/write + Glue Catalog + CloudWatch Logs |
+| `aws_iam_role_policy` | S3 read/write + Glue Catalog + CloudWatch Logs + Athena (StartQueryExecution, GetQueryExecution for MSCK REPAIR TABLE) |
 | `aws_glue_catalog_database` | `omop_cloud_etl` database |
 | `aws_glue_catalog_table` | `analytic_person` table definition |
-| `aws_glue_job` | The ETL job pointing to the script in S3 |
+| `aws_s3_object` (etl_job.py) | Upload Glue job script to `s3://bucket/scripts/` |
+| `aws_s3_object` (pipeline_lib.zip) | Upload pipeline library zip to `s3://bucket/scripts/` |
+| `aws_glue_job` | The ETL job pointing to the script and `--extra-py-files` in S3 |
 | `aws_athena_workgroup` | Workgroup with query result location |
 
 ### Terraform layout
@@ -146,7 +148,7 @@ A Python script (`scripts/upload_raw.py`) uploads Block 1's `data/raw/*.csv` to 
 python scripts/upload_raw.py --bucket <bucket-name> [--prefix raw/]
 ```
 
-This uses `boto3` and is the only manual step before running the Glue job.
+This uses `boto3`. Two manual steps are required before running the Glue job: `scripts/package_lib.py` (creates the zip, must run before `terraform apply`) and `scripts/upload_raw.py` (uploads CSVs to S3, must run before the Glue job).
 
 ## Cost estimate
 

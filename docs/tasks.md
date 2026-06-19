@@ -22,8 +22,9 @@
 - [ ] Write `terraform/main.tf` — provider and backend config
 - [ ] Write `terraform/variables.tf` — bucket name, region, tags
 - [ ] Write `terraform/s3.tf` — S3 bucket, versioning, lifecycle
-- [ ] Write `terraform/iam.tf` — Glue execution role and policy
+- [ ] Write `terraform/iam.tf` — Glue execution role and policy (include Athena StartQueryExecution + GetQueryExecution for MSCK REPAIR TABLE)
 - [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job
+- [ ] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
 - [ ] Write `terraform/athena.tf` — Athena workgroup
 - [ ] Write `terraform/outputs.tf` — bucket ARN, job name, workgroup
 - [ ] Run `terraform validate` successfully
@@ -37,18 +38,24 @@
 - [ ] Upload all 6 CSVs from Block 1 `data/raw/` to S3
 - [ ] Verify files exist in S3 after upload
 
+## Pipeline library packaging
+
+- [ ] Implement `scripts/package_lib.py` to zip Block 1 modules
+- [ ] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
+- [ ] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
+- [ ] Verify modules are importable from the zip in a Glue job
+
 ## Glue ETL job
 
-- [ ] Port Block 1 schemas into `glue/etl_job.py`
-- [ ] Port Block 1 validation logic (null, range, FK, date-order, duplicate checks)
-- [ ] Port Block 1 cleaning logic (drop dirty rows, before/after counts)
-- [ ] Port Block 1 transform logic (joins, aggregations, `analytic_person`)
+- [ ] Implement `glue/etl_job.py` — S3 I/O and orchestration (mirrors `pipeline.py`)
+- [ ] Import `validations`, `transforms`, `schemas` from `--extra-py-files` zip
 - [ ] Implement S3 CSV read with explicit schemas
 - [ ] Implement S3 Parquet write with `year_of_birth_band` partitioning
 - [ ] Implement hard gate (fail job if cleaned data has violations)
 - [ ] Write `pipeline_metrics.json` to S3
+- [ ] Run `MSCK REPAIR TABLE` via Athena after writing output
 - [ ] Accept job parameters (`--S3_BUCKET`, `--RAW_PREFIX`, `--PROCESSED_PREFIX`)
-- [ ] Upload job script to `s3://bucket/scripts/etl_job.py`
+- [ ] Verify Terraform `aws_s3_object` uploads `etl_job.py` to `s3://bucket/scripts/`
 
 ## Job trigger script
 
