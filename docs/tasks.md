@@ -25,6 +25,7 @@
 - [ ] Write `terraform/iam.tf` — Glue execution role and policy (S3 + Catalog + CloudWatch Logs)
 - [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job
 - [ ] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
+- [ ] Set `--job-bookmark-option = job-bookmark-disable` in `aws_glue_job` default arguments
 - [ ] Write `terraform/athena.tf` — Athena workgroup
 - [ ] Write `terraform/outputs.tf` — bucket ARN, job name, workgroup
 - [ ] Run `terraform validate` successfully
