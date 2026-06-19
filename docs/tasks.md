@@ -85,4 +85,5 @@
 - [ ] Document setup and prerequisites
 - [ ] Document cost estimate
 
+- [ ] Add `run_all.py` chaining all four run-order steps into a single command
 - [ ] Review all docs for accuracy against implementation
