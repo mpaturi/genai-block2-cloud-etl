@@ -47,7 +47,7 @@
 
 ## Lib-zip smoke test
 
-- [ ] Write `glue/smoke_test.py` — minimal Glue job that imports all 4 modules and prints "imports OK"
+- [ ] Write `glue/smoke_test.py` — minimal Glue job that prints Python/Spark versions, imports all 4 modules, and prints "imports OK"
 - [ ] Upload `smoke_test.py` to `s3://bucket/scripts/` (manual boto3 or aws cli)
 - [ ] Run smoke test as a one-off Glue job via console or `boto3`
 - [ ] Confirm job succeeds and logs show "imports OK"
