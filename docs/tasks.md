@@ -23,7 +23,7 @@
 - [ ] Write `terraform/variables.tf` — bucket name, region, tags
 - [ ] Write `terraform/s3.tf` — S3 bucket, versioning, lifecycle
 - [ ] Write `terraform/iam.tf` — Glue execution role and policy (S3 + Catalog + CloudWatch Logs)
-- [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job
+- [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job (pin `glue_version = "5.0"` for Spark 4.0 / Python 3.11)
 - [ ] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
 - [ ] Set `--job-bookmark-option = job-bookmark-disable` in `aws_glue_job` default arguments
 - [ ] Write `terraform/athena.tf` — Athena workgroup
