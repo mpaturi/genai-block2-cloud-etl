@@ -103,7 +103,8 @@ The core PySpark modules are not modified. `etl_job.py` imports and calls them e
 
 ## Idempotency
 
-- Glue job uses Spark `mode="overwrite"` — re-runs replace the previous output
+- Glue job bookmarks disabled (`--job-bookmark-option=job-bookmark-disable`) to ensure all input files are always processed on every run
+- `partitionBy` + `mode="overwrite"` uses Spark's default static overwrite — clears the entire table directory before writing, which is intentional
 - Same input CSVs + same job logic = same output (no random state, no timestamps in output)
 - Upload script overwrites S3 raw prefix on each run
 
