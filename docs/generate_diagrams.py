@@ -155,9 +155,9 @@ def draw_architecture():
     _dashed_arrow(ax, 8.0, 3.0, 5.0, 8.0)
 
     # IAM role
-    _box(ax, 7.5, 5.5, 2.5, 0.8,
+    _box(ax, 7.5, 5.5, 3.0, 1.0,
          "IAM Role\nGlue execution\nS3 + Catalog + Logs",
-         COLORS["iam"], fontsize=7)
+         COLORS["iam"], fontsize=8)
 
     _dashed_arrow(ax, 7.5, 6.0, 4.75, 7.6)
 
@@ -212,15 +212,15 @@ def draw_data_flow():
 # ── Diagram 3: Terraform Resources ──────────────────────────────────────────
 
 def draw_terraform():
-    fig, ax = plt.subplots(figsize=(10, 7))
-    ax.set_xlim(0, 10)
+    fig, ax = plt.subplots(figsize=(11, 7))
+    ax.set_xlim(0, 11)
     ax.set_ylim(0, 7)
     ax.axis("off")
     ax.set_title("Block 2 — Terraform Resource Map", fontsize=TITLE_SIZE,
                  fontfamily=FONT, fontweight="bold", pad=15)
 
     # Terraform root
-    _box(ax, 5.0, 6.0, 3.0, 0.7,
+    _box(ax, 5.5, 6.0, 3.0, 0.7,
          "terraform/", COLORS["terraform"], fontsize=10, bold=True)
 
     # Row 1: S3, IAM, Glue, Athena
@@ -228,11 +228,11 @@ def draw_terraform():
         (1.5, 4.2, "s3.tf\nBucket\nVersioning\nLifecycle", COLORS["s3"]),
         (4.0, 4.2, "iam.tf\nGlue Role\nPolicy", COLORS["iam"]),
         (6.5, 4.2, "glue.tf\nDatabase · Table · Job\nS3 objects: etl_job.py\npipeline_lib.zip", COLORS["glue"]),
-        (9.0, 4.2, "athena.tf\nWorkgroup\nResult location", COLORS["catalog"]),
+        (9.5, 4.2, "athena.tf\nWorkgroup\nResult location", COLORS["catalog"]),
     ]
     for mx, my, label, color in modules:
         _box(ax, mx, my, 2.2, 1.1, label, color, fontsize=8)
-        _arrow(ax, 5.0, 5.6, mx, 4.8)
+        _arrow(ax, 5.5, 5.6, mx, 4.8)
 
     # Row 2: Supporting files
     support = [
