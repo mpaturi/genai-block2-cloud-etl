@@ -1,14 +1,13 @@
 # Block 2 Tasks
 
-## Documentation
+## Phase 0 — Documentation
 
 - [x] Write Block 2 scope and acceptance criteria in `docs/spec.md`
 - [x] Generate architecture, data flow, S3 layout, and Terraform diagrams
 - [x] Write implementation approach in `docs/plan.md`
 - [x] Write task breakdown in `docs/tasks.md`
-- [ ] Keep `README.md` aligned with implementation
 
-## Repo and environment
+## Phase 1 — Foundation (Terraform + Environment)
 
 - [x] Initialize git repo and `.gitignore`
 - [ ] Create Python virtual environment
@@ -16,9 +15,6 @@
 - [ ] Capture pinned dependencies in `requirements.txt`
 - [ ] Install Terraform locally
 - [ ] Confirm AWS CLI is configured with credentials
-
-## Terraform infrastructure
-
 - [ ] Write `terraform/main.tf` — provider and backend config
 - [ ] Write `terraform/variables.tf` — bucket name, region, tags
 - [ ] Write `terraform/s3.tf` — S3 bucket, lifecycle (no versioning — pipeline is idempotent)
@@ -32,22 +28,19 @@
 - [ ] Write `terraform/outputs.tf` — bucket ARN, job name, workgroup
 - [ ] Run `terraform validate` successfully
 - [ ] Run `terraform plan` and review resource graph
-- [ ] Run `terraform apply` and confirm all resources created
 
-## Upload script
+## Phase 2 — Packaging & Upload Scripts
 
+- [ ] Implement `scripts/package_lib.py` to zip Block 1 modules
+- [ ] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
 - [ ] Implement `scripts/upload_raw.py` using `boto3`
 - [ ] Support `--bucket` and `--prefix` arguments
 - [ ] Upload all 6 CSVs from Block 1 `data/raw/` to S3
 - [ ] Verify files exist in S3 after upload
-
-## Pipeline library packaging
-
-- [ ] Implement `scripts/package_lib.py` to zip Block 1 modules
-- [ ] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
+- [ ] Run `terraform apply` — creates all resources, uploads job script + zip to S3
 - [ ] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
 
-## Lib-zip smoke test
+## Phase 3 — Smoke Test
 
 - [ ] Write `glue/smoke_test.py` — minimal Glue job that prints Python/Spark versions, imports all 4 modules, and prints "imports OK"
 - [ ] Upload `smoke_test.py` to `s3://bucket/scripts/` (manual boto3 or aws cli)
@@ -55,7 +48,7 @@
 - [ ] Confirm job succeeds and logs show "imports OK"
 - [ ] Delete `smoke_test.py` from S3 after passing (cleanup)
 
-## Glue ETL job
+## Phase 4 — ETL Job + Trigger
 
 - [ ] Implement `glue/etl_job.py` — S3 I/O and orchestration (mirrors `pipeline.py`)
 - [ ] Import `validations`, `transforms`, `schemas`, `concepts` from `--extra-py-files` zip
@@ -65,14 +58,11 @@
 - [ ] Write `pipeline_metrics.json` to S3
 - [ ] Accept job parameters (`--S3_BUCKET`, `--RAW_PREFIX`, `--PROCESSED_PREFIX`)
 - [ ] Verify Terraform `aws_s3_object` uploads `etl_job.py` to `s3://bucket/scripts/`
-
-## Job trigger script
-
 - [ ] Implement `scripts/run_glue_job.py` — start job and poll for completion
 - [ ] Print job status and duration on completion
 - [ ] Exit with error code on job failure
 
-## Verification
+## Phase 5 — Verification & Polish
 
 - [ ] Run Glue job end-to-end and confirm it succeeds
 - [ ] Verify partitioned Parquet exists in `s3://bucket/processed/analytic_person/`
@@ -80,11 +70,9 @@
 - [ ] Query `analytic_person` via Athena and confirm results
 - [ ] Re-run Glue job and confirm output is identical (idempotency)
 - [ ] Run `terraform destroy` and confirm clean teardown
-
-## README and polish
-
 - [ ] Write README with architecture diagram
 - [ ] Document setup and prerequisites
 - [ ] Document cost estimate
+- [ ] Keep `README.md` aligned with implementation
 - [ ] (optional) Add `run_all.py` chaining all four run-order steps into a single command
 - [ ] Review all docs for accuracy against implementation
