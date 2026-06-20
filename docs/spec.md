@@ -89,6 +89,7 @@ The job uses Glue version 5.0 (Spark 3.5.4, Python 3.11). AWS Glue does not supp
 - Glue job bookmarks disabled (`--job-bookmark-option=job-bookmark-disable`) to ensure all input files are always processed on every run
 - `partitionBy` + `mode="overwrite"` uses Spark's default static overwrite — clears the entire table directory before writing, which is intentional
 - Same input CSVs + same job logic = same output (deterministic transforms, no random state)
+- Upload script overwrites S3 raw prefix on each run
 
 ### Job parameters
 

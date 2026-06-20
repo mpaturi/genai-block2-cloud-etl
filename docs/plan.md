@@ -1,11 +1,5 @@
 # Block 2 Plan
 
-## Acceptance criteria
-
-> **Project — Lift the pipeline to AWS**
-> Acceptance criteria (done = all true):
-> Raw data lands in S3, is transformed by Glue (or equivalent), and is query-ready; all infrastructure defined as code (Terraform/CDK), not clicked in the console; pipeline is idempotent (re-runs produce the same result); a cost estimate is documented in the README.
-
 ## Objective
 
 Lift the Block 1 PySpark batch pipeline to AWS. Raw CSVs go to S3, an AWS Glue job runs the same validate/clean/transform logic, output lands as query-ready partitioned Parquet, and all infrastructure is defined in Terraform.
@@ -50,8 +44,6 @@ Block 1's core modules packaged as a zip for Glue's `--extra-py-files`:
 - `transforms.py` — cleaning functions, `build_analytic_person()` joins/aggregations
 - `schemas.py` — StructType definitions for all 6 tables + `analytic_person`
 - `concepts.py` — concept ID lookup dictionaries
-
-These modules are imported unchanged from Block 1. No adaptation, no inlining. This keeps the tested logic intact and reusable in later blocks (e.g., Block 8 capstone).
 
 ### `scripts/package_lib.py`
 
@@ -106,13 +98,6 @@ Block 1's PySpark logic ports to Glue with these changes:
 
 The core PySpark modules are not modified. `etl_job.py` imports and calls them exactly as `pipeline.py` does in Block 1, with S3 paths replacing local paths.
 
-## Idempotency
-
-- Glue job bookmarks disabled (`--job-bookmark-option=job-bookmark-disable`) to ensure all input files are always processed on every run
-- `partitionBy` + `mode="overwrite"` uses Spark's default static overwrite — clears the entire table directory before writing, which is intentional
-- Same input CSVs + same job logic = same output (no random state, no timestamps in output)
-- Upload script overwrites S3 raw prefix on each run
-
 ## Testing strategy
 
 Block 2 testing differs from Block 1. The PySpark logic is already tested in Block 1 (103 tests). Block 2 testing focuses on:
@@ -143,14 +128,3 @@ Block 2 testing differs from Block 1. The PySpark logic is already tested in Blo
 - Monitoring and alerting
 - New tables or schema changes
 
-## Completion criteria
-
-This plan is complete when:
-- Terraform creates all AWS resources from code
-- Raw CSVs are uploaded to S3
-- The Glue job runs the full pipeline and writes partitioned Parquet to S3
-- Athena can query the processed output
-- Pipeline metrics match Block 1's expected values
-- Re-running the job produces identical output
-- Cost estimate is documented in the README
-- `terraform destroy` tears down everything cleanly
