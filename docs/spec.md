@@ -82,7 +82,7 @@ A single Glue job (`etl_job.py`) runs the same pipeline stages as Block 1:
 6. Write partitioned Parquet to `s3://bucket/processed/analytic_person/`
 7. Write `pipeline_metrics.json` to `s3://bucket/processed/`
 
-The job uses Glue version 5.0 (Spark 4.0, Python 3.11) to match Block 1's runtime (PySpark 4.1.2, Python 3.11). Pin `glue_version = "5.0"` in the `aws_glue_job` resource. Block 1's core modules (`validations.py`, `transforms.py`, `schemas.py`, `concepts.py`) are packaged as a zip and uploaded to S3 alongside the job script. The Glue job references this zip via `--extra-py-files`, so the modules are importable as-is — no adaptation, no inlining. `etl_job.py` handles only S3 I/O and orchestration, mirroring `pipeline.py` from Block 1. This keeps the tested Block 1 logic intact and reusable in later blocks (e.g., Block 8 capstone).
+The job uses Glue version 5.0 (Spark 3.5.4, Python 3.11). AWS Glue does not support Spark 4.x — Glue 5.0 is the highest stable version and uses Python 3.11, matching Block 1's Python runtime. Block 1's local PySpark version (4.1.2) differs, but the DataFrame API used by this pipeline is fully compatible between Spark 3.5 and 4.x. Pin `glue_version = "5.0"` in the `aws_glue_job` resource. Block 1's core modules (`validations.py`, `transforms.py`, `schemas.py`, `concepts.py`) are packaged as a zip and uploaded to S3 alongside the job script. The Glue job references this zip via `--extra-py-files`, so the modules are importable as-is — no adaptation, no inlining. `etl_job.py` handles only S3 I/O and orchestration, mirroring `pipeline.py` from Block 1. This keeps the tested Block 1 logic intact and reusable in later blocks (e.g., Block 8 capstone).
 
 ### Idempotency
 

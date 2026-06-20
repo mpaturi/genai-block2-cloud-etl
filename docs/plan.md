@@ -70,9 +70,9 @@ Uploads Block 1's `data/raw/*.csv` to the S3 landing zone using `boto3`.
 All AWS infrastructure defined as Terraform HCL:
 
 - `main.tf` — provider config, backend
-- `s3.tf` — bucket, versioning, lifecycle rules
+- `s3.tf` — bucket, lifecycle rules (no versioning — pipeline is idempotent and output is reproducible from source)
 - `iam.tf` — Glue execution role with least-privilege policy: `s3:GetObject` (raw/*, scripts/*), `s3:PutObject`/`s3:DeleteObject` (processed/*), `s3:ListBucket` — all scoped to pipeline bucket ARN; Glue Catalog scoped to `omop_cloud_etl` database; CloudWatch Logs
-- `glue.tf` — Glue database, catalog table (with partition projection for `year_of_birth_band`), ETL job (pinned to `glue_version = "5.0"` for Spark 4.0 / Python 3.11), `aws_s3_object` for `etl_job.py` and `pipeline_lib.zip`
+- `glue.tf` — Glue database, catalog table (with partition projection for `year_of_birth_band`), ETL job (pinned to `glue_version = "5.0"` for Spark 3.5.4 / Python 3.11), `aws_s3_object` for `etl_job.py` and `pipeline_lib.zip`
 - `athena.tf` — Athena workgroup with query result location
 - `variables.tf` — parameterized inputs (bucket name, region, tags)
 - `outputs.tf` — bucket ARN, Glue job name, Athena workgroup name
@@ -118,7 +118,7 @@ The core PySpark modules are not modified. `etl_job.py` imports and calls them e
 Block 2 testing differs from Block 1. The PySpark logic is already tested in Block 1 (103 tests). Block 2 testing focuses on:
 
 1. **Terraform validation**: `terraform validate` and `terraform plan` confirm the infrastructure is syntactically correct and produces the expected resource graph.
-2. **Smoke test**: run `glue/smoke_test.py` as a one-off Glue job after `terraform apply` to verify all 4 modules import correctly and confirm Python/Spark versions match Block 1.
+2. **Smoke test**: run `glue/smoke_test.py` as a one-off Glue job after `terraform apply` to verify all 4 modules import correctly and confirm the Glue runtime reports Python 3.11 / Spark 3.5.4 as expected.
 3. **End-to-end cloud test**: upload CSVs → run Glue job → verify output exists in S3 → query via Athena.
 4. **Idempotency test**: run the Glue job twice, confirm output is identical.
 5. **Metrics verification**: compare `pipeline_metrics.json` from S3 against Block 1's expected metrics (row counts should match).

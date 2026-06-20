@@ -21,10 +21,10 @@
 
 - [ ] Write `terraform/main.tf` — provider and backend config
 - [ ] Write `terraform/variables.tf` — bucket name, region, tags
-- [ ] Write `terraform/s3.tf` — S3 bucket, versioning, lifecycle
+- [ ] Write `terraform/s3.tf` — S3 bucket, lifecycle (no versioning — pipeline is idempotent)
 - [ ] Write `terraform/iam.tf` — Glue execution role and policy (S3 + Catalog + CloudWatch Logs)
 - [ ] Scope IAM policy to pipeline bucket ARN with specific S3 actions per prefix (`raw/`, `scripts/` → `GetObject`/`ListBucket`; `processed/` → `PutObject`/`DeleteObject`)
-- [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job (pin `glue_version = "5.0"` for Spark 4.0 / Python 3.11)
+- [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job (pin `glue_version = "5.0"` for Spark 3.5.4 / Python 3.11)
 - [ ] Configure partition projection properties on `aws_glue_catalog_table` in `glue.tf`
 - [ ] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
 - [ ] Set `--job-bookmark-option = job-bookmark-disable` in `aws_glue_job` default arguments
@@ -58,7 +58,7 @@
 ## Glue ETL job
 
 - [ ] Implement `glue/etl_job.py` — S3 I/O and orchestration (mirrors `pipeline.py`)
-- [ ] Import `validations`, `transforms`, `schemas` from `--extra-py-files` zip
+- [ ] Import `validations`, `transforms`, `schemas`, `concepts` from `--extra-py-files` zip
 - [ ] Implement S3 CSV read with explicit schemas
 - [ ] Implement S3 Parquet write with `year_of_birth_band` partitioning
 - [ ] Implement hard gate (fail job if cleaned data has violations)
@@ -86,5 +86,5 @@
 - [ ] Write README with architecture diagram
 - [ ] Document setup and prerequisites
 - [ ] Document cost estimate
-- [ ] Add `run_all.py` chaining all four run-order steps into a single command
+- [ ] (optional) Add `run_all.py` chaining all four run-order steps into a single command
 - [ ] Review all docs for accuracy against implementation
