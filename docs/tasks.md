@@ -29,16 +29,16 @@
 - [ ] Run `terraform validate` successfully
 - [ ] Run `terraform plan` and review resource graph
 
-## Phase 2 — Packaging & Upload Scripts
+## Phase 2 — Packaging, Apply & Upload
 
 - [ ] Implement `scripts/package_lib.py` to zip Block 1 modules
 - [ ] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
 - [ ] Implement `scripts/upload_raw.py` using `boto3`
 - [ ] Support `--bucket` and `--prefix` arguments
+- [ ] Run `terraform apply` — creates all resources, uploads `etl_job.py` + `pipeline_lib.zip` to S3 (bucket must exist before uploading CSVs)
+- [ ] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
 - [ ] Upload all 6 CSVs from Block 1 `data/raw/` to S3
 - [ ] Verify files exist in S3 after upload
-- [ ] Run `terraform apply` — creates all resources, uploads job script + zip to S3
-- [ ] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
 
 ## Phase 3 — Smoke Test
 
@@ -74,5 +74,5 @@
 - [ ] Document setup and prerequisites
 - [ ] Document cost estimate
 - [ ] Keep `README.md` aligned with implementation
-- [ ] (optional) Add `run_all.py` chaining all four run-order steps into a single command
+- [ ] (optional) Add `run_all.py` chaining all run-order steps into a single command
 - [ ] Review all docs for accuracy against implementation
