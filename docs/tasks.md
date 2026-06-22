@@ -31,14 +31,14 @@
 
 ## Phase 2 — Packaging, Apply & Upload
 
-- [ ] Implement `scripts/package_lib.py` to zip Block 1 modules
-- [ ] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
-- [ ] Implement `scripts/upload_raw.py` using `boto3`
-- [ ] Support `--bucket` and `--prefix` arguments
-- [ ] Run `terraform apply` — creates all resources, uploads `etl_job.py` + `pipeline_lib.zip` to S3 (bucket must exist before uploading CSVs)
-- [ ] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
-- [ ] Upload all 6 CSVs from Block 1 `data/raw/` to S3
-- [ ] Verify files exist in S3 after upload
+- [x] Implement `scripts/package_lib.py` to zip Block 1 modules
+- [x] Run `scripts/package_lib.py` to package `validations.py`, `transforms.py`, `schemas.py`, `concepts.py` into `glue/pipeline_lib.zip`
+- [x] Implement `scripts/upload_raw.py` using `boto3`
+- [x] Support `--bucket` and `--prefix` arguments
+- [x] Run `terraform apply` — creates all resources, uploads `etl_job.py` + `pipeline_lib.zip` to S3 (bucket must exist before uploading CSVs)
+- [x] Verify Terraform `aws_s3_object` uploads `pipeline_lib.zip` to `s3://bucket/scripts/`
+- [x] Upload all 6 CSVs from Block 1 `data/raw/` to S3
+- [x] Verify files exist in S3 after upload
 
 ## Phase 3 — Smoke Test
 
