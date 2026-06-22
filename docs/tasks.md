@@ -64,15 +64,15 @@
 
 ## Phase 5 — Verification & Polish
 
-- [ ] Run Glue job end-to-end and confirm it succeeds
-- [ ] Verify partitioned Parquet exists in `s3://bucket/processed/analytic_person/`
-- [ ] Verify `pipeline_metrics.json` row counts match Block 1 expected values
-- [ ] Query `analytic_person` via Athena and confirm results
-- [ ] Re-run Glue job and confirm output is identical (idempotency)
+- [x] Run Glue job end-to-end and confirm it succeeds
+- [x] Verify partitioned Parquet exists in `s3://bucket/processed/analytic_person/`
+- [x] Verify `pipeline_metrics.json` row counts match Block 1 expected values
+- [x] Query `analytic_person` via Athena and confirm results
+- [x] Re-run Glue job and confirm output is identical (idempotency)
 - [ ] Run `terraform destroy` and confirm clean teardown
-- [ ] Write README with architecture diagram
-- [ ] Document setup and prerequisites
-- [ ] Document cost estimate
-- [ ] Keep `README.md` aligned with implementation
-- [ ] (optional) Add `run_all.py` chaining all run-order steps into a single command
-- [ ] Review all docs for accuracy against implementation
+- [x] Write README with architecture diagram
+- [x] Document setup and prerequisites
+- [x] Document cost estimate
+- [x] Keep `README.md` aligned with implementation
+- [x] (optional) Add `run_all.py` chaining all run-order steps into a single command
+- [x] Review all docs for accuracy against implementation

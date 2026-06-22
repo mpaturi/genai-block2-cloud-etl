@@ -41,7 +41,8 @@ resource "aws_iam_role_policy" "glue" {
           "s3:DeleteObject"
         ]
         Resource = [
-          "${aws_s3_bucket.pipeline.arn}/processed/*"
+          "${aws_s3_bucket.pipeline.arn}/processed/*",
+          "${aws_s3_bucket.pipeline.arn}/processed_$folder$"
         ]
       },
       {
