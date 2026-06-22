@@ -12,6 +12,7 @@ terraform/*.tfstate
 terraform/*.tfstate.backup
 terraform/.terraform.lock.hcl
 terraform/*.tfvars
+terraform/tfplan
 
 # Generated artifacts
 glue/pipeline_lib.zip
