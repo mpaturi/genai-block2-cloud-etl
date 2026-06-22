@@ -42,11 +42,11 @@
 
 ## Phase 3 — Smoke Test
 
-- [ ] Write `glue/smoke_test.py` — minimal Glue job that prints Python/Spark versions, imports all 4 modules, and prints "imports OK"
-- [ ] Upload `smoke_test.py` to `s3://bucket/scripts/` (manual boto3 or aws cli)
-- [ ] Run smoke test as a one-off Glue job via console or `boto3`
-- [ ] Confirm job succeeds and logs show "imports OK"
-- [ ] Delete `smoke_test.py` from S3 after passing (cleanup)
+- [x] Write `glue/smoke_test.py` — minimal Glue job that prints Python/Spark versions, imports all 4 modules, and prints "imports OK"
+- [x] Write `scripts/run_smoke_test.py` — uploads smoke_test.py, creates temp Glue job, runs it, streams logs, cleans up (deletes job + S3 object)
+- [x] Fix `scripts/package_lib.py` — rewrite `from src.*` imports to flat imports and inline `REFERENCE_DATE` from config
+- [x] Run `python scripts/run_smoke_test.py` — PASSED (Python 3.11.14, Spark 3.5.4, "imports OK")
+- [x] Cleanup confirmed — temp Glue job and smoke_test.py deleted from S3
 
 ## Phase 4 — ETL Job + Trigger
 
