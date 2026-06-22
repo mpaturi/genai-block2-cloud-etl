@@ -50,17 +50,17 @@
 
 ## Phase 4 — ETL Job + Trigger
 
-- [ ] Implement `glue/etl_job.py` — S3 I/O and orchestration (mirrors `pipeline.py`)
-- [ ] Import `validations`, `transforms`, `schemas`, `concepts` from `--extra-py-files` zip
-- [ ] Implement S3 CSV read with explicit schemas
-- [ ] Implement S3 Parquet write with `year_of_birth_band` partitioning
-- [ ] Implement hard gate (fail job if cleaned data has violations)
-- [ ] Write `pipeline_metrics.json` to S3
-- [ ] Accept job parameters (`--S3_BUCKET`, `--RAW_PREFIX`, `--PROCESSED_PREFIX`)
-- [ ] Verify Terraform `aws_s3_object` uploads `etl_job.py` to `s3://bucket/scripts/`
-- [ ] Implement `scripts/run_glue_job.py` — start job and poll for completion
-- [ ] Print job status and duration on completion
-- [ ] Exit with error code on job failure
+- [x] Implement `glue/etl_job.py` — S3 I/O and orchestration (mirrors `pipeline.py`)
+- [x] Import `validations`, `transforms`, `schemas`, `concepts` from `--extra-py-files` zip
+- [x] Implement S3 CSV read with explicit schemas
+- [x] Implement S3 Parquet write with `year_of_birth_band` partitioning
+- [x] Implement hard gate (fail job if cleaned data has violations)
+- [x] Write `pipeline_metrics.json` to S3
+- [x] Accept job parameters (`--S3_BUCKET`, `--RAW_PREFIX`, `--PROCESSED_PREFIX`)
+- [x] Verify Terraform `aws_s3_object` uploads `etl_job.py` to `s3://bucket/scripts/`
+- [x] Implement `scripts/run_glue_job.py` — start job and poll for completion
+- [x] Print job status and duration on completion
+- [x] Exit with error code on job failure
 
 ## Phase 5 — Verification & Polish
 
