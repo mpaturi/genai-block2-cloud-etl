@@ -10,24 +10,24 @@
 ## Phase 1 — Foundation (Terraform + Environment)
 
 - [x] Initialize git repo and `.gitignore`
-- [ ] Create Python virtual environment
-- [ ] Install dependencies (`boto3`, `awscli`)
-- [ ] Capture pinned dependencies in `requirements.txt`
-- [ ] Install Terraform locally
-- [ ] Confirm AWS CLI is configured with credentials
-- [ ] Write `terraform/main.tf` — provider and backend config
-- [ ] Write `terraform/variables.tf` — bucket name, region, tags
-- [ ] Write `terraform/s3.tf` — S3 bucket, lifecycle (no versioning — pipeline is idempotent)
-- [ ] Write `terraform/iam.tf` — Glue execution role and policy (S3 + Catalog + CloudWatch Logs)
-- [ ] Scope IAM policy to pipeline bucket ARN with specific S3 actions per prefix (`raw/`, `scripts/` → `GetObject`/`ListBucket`; `processed/` → `PutObject`/`DeleteObject`)
-- [ ] Write `terraform/glue.tf` — Glue database, catalog table, ETL job (pin `glue_version = "5.0"` for Spark 3.5.4 / Python 3.11)
-- [ ] Configure partition projection properties on `aws_glue_catalog_table` in `glue.tf`
-- [ ] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
-- [ ] Set `--job-bookmark-option = job-bookmark-disable` in `aws_glue_job` default arguments
-- [ ] Write `terraform/athena.tf` — Athena workgroup
-- [ ] Write `terraform/outputs.tf` — bucket ARN, job name, workgroup
-- [ ] Run `terraform validate` successfully
-- [ ] Run `terraform plan` and review resource graph
+- [x] Create Python virtual environment
+- [x] Install dependencies (`boto3`, `awscli`)
+- [x] Capture pinned dependencies in `requirements.txt`
+- [x] Install Terraform locally
+- [x] Confirm AWS CLI is configured with credentials
+- [x] Write `terraform/main.tf` — provider and backend config
+- [x] Write `terraform/variables.tf` — bucket name, region, tags
+- [x] Write `terraform/s3.tf` — S3 bucket, lifecycle (no versioning — pipeline is idempotent)
+- [x] Write `terraform/iam.tf` — Glue execution role and policy (S3 + Catalog + CloudWatch Logs)
+- [x] Scope IAM policy to pipeline bucket ARN with specific S3 actions per prefix (`raw/`, `scripts/` → `GetObject`/`ListBucket`; `processed/` → `PutObject`/`DeleteObject`)
+- [x] Write `terraform/glue.tf` — Glue database, catalog table, ETL job (pin `glue_version = "5.0"` for Spark 3.5.4 / Python 3.11)
+- [x] Configure partition projection properties on `aws_glue_catalog_table` in `glue.tf`
+- [x] Configure `--extra-py-files = s3://bucket/scripts/pipeline_lib.zip` in `aws_glue_job` default arguments in `glue.tf`
+- [x] Set `--job-bookmark-option = job-bookmark-disable` in `aws_glue_job` default arguments
+- [x] Write `terraform/athena.tf` — Athena workgroup
+- [x] Write `terraform/outputs.tf` — bucket ARN, job name, workgroup
+- [x] Run `terraform validate` successfully
+- [x] Run `terraform plan` and review resource graph
 
 ## Phase 2 — Packaging, Apply & Upload
 
