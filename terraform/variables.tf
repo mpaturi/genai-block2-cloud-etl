@@ -1,6 +1,7 @@
 variable "bucket_name" {
   description = "Name of the S3 bucket for raw and processed data"
   type        = string
+  default     = "genai-block2-omop-623756711801"
 }
 
 variable "aws_region" {
