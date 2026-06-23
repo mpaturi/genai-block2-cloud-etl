@@ -164,3 +164,11 @@ The pipeline is designed for safe re-runs:
 - Glue job bookmarks are disabled — all input files are processed every run
 - Parquet output uses `mode("overwrite")` — clears and rewrites the output directory
 - Same input CSVs + same logic = identical output
+
+## AI-Assisted Workflow
+
+This project was built with Claude Code as an AI pair programmer.
+
+**Where I corrected the AI:** The AI had `terraform apply` listed after CSV upload in the Phase 2 task ordering. I corrected the order — the S3 bucket must exist before uploading CSVs, so `terraform apply` must run first.
+
+**Where the AI corrected the workflow:** The smoke test revealed that Block 1 modules use `from src.X import` which fails in Glue's flat zip layout. The AI rewrote `scripts/package_lib.py` to transform `from src.*` imports to flat imports and inline `REFERENCE_DATE` from `config.py` (which is not packaged). It also built `scripts/run_smoke_test.py` with automatic cleanup of the temporary Glue job and S3 object after the test passes.
