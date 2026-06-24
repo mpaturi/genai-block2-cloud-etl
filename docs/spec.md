@@ -121,9 +121,10 @@ All AWS resources are defined in Terraform (no console clicks):
 
 | Resource | Purpose |
 |---|---|
-| `aws_s3_bucket` | Single bucket for raw + processed data |
+| `aws_s3_bucket` | Single bucket for raw + processed data (`force_destroy = true`) |
 | `aws_s3_bucket_versioning` | Omitted; pipeline is idempotent and output is fully reproducible from source data, so versioning adds no value and avoids noncurrent-version storage accumulation |
-| `aws_s3_bucket_lifecycle_configuration` | Expire old processed data after N days (cost control) |
+| `aws_s3_bucket_public_access_block` | Block all public access to the bucket |
+| `aws_s3_bucket_lifecycle_configuration` | Three rules: expire processed/ after N days, expire athena-results/ after 7 days, abort incomplete multipart uploads after 3 days |
 | `aws_iam_role` (Glue) | Execution role for the Glue job |
 | `aws_iam_role_policy` | `s3:GetObject` (raw/*, scripts/*), `s3:PutObject`/`s3:DeleteObject` (processed/*, processed_$folder$), `s3:ListBucket` — all scoped to pipeline bucket ARN + Glue Catalog scoped to `omop_cloud_etl` database + CloudWatch Logs |
 | `aws_glue_catalog_database` | `omop_cloud_etl` database |
