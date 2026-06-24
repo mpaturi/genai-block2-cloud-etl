@@ -29,9 +29,7 @@ def run_and_poll(glue, job_name: str) -> dict:
             return run
 
 
-def fetch_logs(logs, run: dict) -> None:
-    log_group = "/aws-glue/jobs/output"
-    run_id = run["Id"]
+def _print_log_group(logs, log_group: str, run_id: str) -> None:
     print(f"\n--- CloudWatch logs ({log_group}) ---")
     try:
         streams = logs.describe_log_streams(
@@ -48,6 +46,16 @@ def fetch_logs(logs, run: dict) -> None:
                 print(event["message"].rstrip())
     except logs.exceptions.ResourceNotFoundException:
         print("(no log streams found)")
+
+
+def fetch_logs(logs, run: dict) -> None:
+    run_id = run["Id"]
+    failed = run["JobRunState"] != "SUCCEEDED"
+    log_groups = ["/aws-glue/jobs/output"]
+    if failed:
+        log_groups.append("/aws-glue/jobs/error")
+    for log_group in log_groups:
+        _print_log_group(logs, log_group, run_id)
 
 
 def main() -> None:
