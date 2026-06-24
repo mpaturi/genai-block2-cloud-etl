@@ -12,7 +12,7 @@ resource "aws_glue_catalog_table" "analytic_person" {
     "classification"                    = "parquet"
     "projection.enabled"                = "true"
     "projection.year_of_birth_band.type"   = "enum"
-    "projection.year_of_birth_band.values" = "1920s,1930s,1940s,1950s,1960s,1970s,1980s,1990s,2000s,2010s,2020s"
+    "projection.year_of_birth_band.values" = "1900s,1910s,1920s,1930s,1940s,1950s,1960s,1970s,1980s,1990s,2000s,2010s,2020s"
     "storage.location.template"         = "s3://${var.bucket_name}/processed/analytic_person/year_of_birth_band=$${year_of_birth_band}"
   }
 
