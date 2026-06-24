@@ -5,7 +5,7 @@ from pathlib import Path
 
 import boto3
 
-DEFAULT_BUCKET = "genai-block2-omop-623756711801"
+from config import DEFAULT_BUCKET
 DEFAULT_PREFIX = "raw/"
 DEFAULT_BLOCK1_DIR = Path(__file__).resolve().parent.parent.parent / "genai-block1-batch-pipeline"
 

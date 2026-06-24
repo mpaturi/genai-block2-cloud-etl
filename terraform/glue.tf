@@ -119,6 +119,7 @@ resource "aws_glue_job" "etl" {
     "--S3_BUCKET"             = var.bucket_name
     "--RAW_PREFIX"            = "raw/"
     "--PROCESSED_PREFIX"      = "processed/"
+    "--AWS_REGION"            = var.aws_region
     "--enable-metrics"        = "true"
     "--enable-continuous-cloudwatch-log" = "true"
   }

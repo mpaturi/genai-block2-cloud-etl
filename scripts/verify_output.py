@@ -7,8 +7,7 @@ import time
 
 import boto3
 
-DEFAULT_BUCKET = "genai-block2-omop-623756711801"
-DEFAULT_REGION = "us-east-2"
+from config import DEFAULT_BUCKET, DEFAULT_REGION
 WORKGROUP = "omop-cloud-etl"
 DATABASE = "omop_cloud_etl"
 TABLE = "analytic_person"
@@ -74,12 +73,16 @@ def check_athena(athena, bucket: str) -> bool:
     execution_id = execution["QueryExecutionId"]
     print(f"  Execution ID: {execution_id}")
 
+    deadline = time.time() + 120
     while True:
         time.sleep(2)
         status = athena.get_query_execution(QueryExecutionId=execution_id)
         state = status["QueryExecution"]["Status"]["State"]
         if state in ("SUCCEEDED", "FAILED", "CANCELLED"):
             break
+        if time.time() > deadline:
+            print("  FAIL: Athena query timed out after 120s")
+            return False
 
     if state != "SUCCEEDED":
         reason = status["QueryExecution"]["Status"].get("StateChangeReason", "unknown")

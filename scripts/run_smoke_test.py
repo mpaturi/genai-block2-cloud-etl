@@ -7,7 +7,7 @@ from pathlib import Path
 
 import boto3
 
-DEFAULT_BUCKET = "genai-block2-omop-623756711801"
+from config import DEFAULT_BUCKET, DEFAULT_REGION
 SMOKE_JOB_NAME = "omop-smoke-test"
 SMOKE_SCRIPT_KEY = "scripts/smoke_test.py"
 ROLE_NAME = "omop-cloud-etl-glue-role"
@@ -67,13 +67,21 @@ def _print_log_group(logs, log_group: str, run_id: str) -> None:
             logStreamNamePrefix=run_id,
         )["logStreams"]
         for stream in streams:
-            events = logs.get_log_events(
-                logGroupName=log_group,
-                logStreamName=stream["logStreamName"],
-                startFromHead=True,
-            )["events"]
-            for event in events:
-                print(event["message"].rstrip())
+            token = None
+            while True:
+                kwargs = dict(
+                    logGroupName=log_group,
+                    logStreamName=stream["logStreamName"],
+                    startFromHead=True,
+                )
+                if token:
+                    kwargs["nextToken"] = token
+                resp = logs.get_log_events(**kwargs)
+                for event in resp["events"]:
+                    print(event["message"].rstrip())
+                if resp["nextForwardToken"] == token:
+                    break
+                token = resp["nextForwardToken"]
     except logs.exceptions.ResourceNotFoundException:
         print("(no log streams found)")
 
@@ -105,7 +113,7 @@ def cleanup(glue, s3, bucket: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run Glue smoke test")
     parser.add_argument("--bucket", default=DEFAULT_BUCKET)
-    parser.add_argument("--region", default="us-east-2")
+    parser.add_argument("--region", default=DEFAULT_REGION)
     args = parser.parse_args()
 
     s3 = boto3.client("s3", region_name=args.region)

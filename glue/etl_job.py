@@ -16,7 +16,7 @@ import validations
 
 # ---- Glue bootstrap --------------------------------------------------------
 
-args = getResolvedOptions(sys.argv, ["JOB_NAME", "S3_BUCKET", "RAW_PREFIX", "PROCESSED_PREFIX"])
+args = getResolvedOptions(sys.argv, ["JOB_NAME", "S3_BUCKET", "RAW_PREFIX", "PROCESSED_PREFIX", "AWS_REGION"])
 
 sc = SparkContext()
 glueContext = GlueContext(sc)
@@ -25,8 +25,9 @@ job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
 
 BUCKET = args["S3_BUCKET"]
-RAW_PREFIX = args["RAW_PREFIX"]
-PROCESSED_PREFIX = args["PROCESSED_PREFIX"]
+RAW_PREFIX = args["RAW_PREFIX"].rstrip("/") + "/"
+PROCESSED_PREFIX = args["PROCESSED_PREFIX"].rstrip("/") + "/"
+AWS_REGION = args["AWS_REGION"]
 
 RAW_PATH = f"s3://{BUCKET}/{RAW_PREFIX}"
 PROCESSED_PATH = f"s3://{BUCKET}/{PROCESSED_PREFIX}"
@@ -147,13 +148,16 @@ metrics = {
 
 metrics_key = f"{PROCESSED_PREFIX}pipeline_metrics.json"
 log(f"Stage 7: Writing pipeline_metrics.json to s3://{BUCKET}/{metrics_key}")
-s3 = boto3.client("s3")
-s3.put_object(
-    Bucket=BUCKET,
-    Key=metrics_key,
-    Body=json.dumps(metrics, indent=2),
-    ContentType="application/json",
-)
+s3 = boto3.client("s3", region_name=AWS_REGION)
+try:
+    s3.put_object(
+        Bucket=BUCKET,
+        Key=metrics_key,
+        Body=json.dumps(metrics, indent=2),
+        ContentType="application/json",
+    )
+except Exception as e:
+    log(f"WARNING: failed to write metrics ({e}) — data output is intact")
 
 log(f"Pipeline completed in {t_total:.1f}s")
 job.commit()

@@ -9,9 +9,9 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SCRIPTS_DIR.parent
 TERRAFORM_DIR = PROJECT_DIR / "terraform"
 
+from config import DEFAULT_BUCKET, DEFAULT_REGION
+
 DEFAULT_BLOCK1_DIR = PROJECT_DIR.parent / "genai-block1-batch-pipeline"
-DEFAULT_BUCKET = "genai-block2-omop-623756711801"
-DEFAULT_REGION = "us-east-2"
 TERRAFORM = "terraform"
 
 

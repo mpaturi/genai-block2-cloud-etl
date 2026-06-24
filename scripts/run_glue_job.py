@@ -6,6 +6,8 @@ import time
 
 import boto3
 
+from config import DEFAULT_REGION
+
 JOB_NAME = "omop-cloud-etl"
 POLL_INTERVAL = 15
 
@@ -37,13 +39,21 @@ def _print_log_group(logs, log_group: str, run_id: str) -> None:
             logStreamNamePrefix=run_id,
         )["logStreams"]
         for stream in streams:
-            events = logs.get_log_events(
-                logGroupName=log_group,
-                logStreamName=stream["logStreamName"],
-                startFromHead=True,
-            )["events"]
-            for event in events:
-                print(event["message"].rstrip())
+            token = None
+            while True:
+                kwargs = dict(
+                    logGroupName=log_group,
+                    logStreamName=stream["logStreamName"],
+                    startFromHead=True,
+                )
+                if token:
+                    kwargs["nextToken"] = token
+                resp = logs.get_log_events(**kwargs)
+                for event in resp["events"]:
+                    print(event["message"].rstrip())
+                if resp["nextForwardToken"] == token:
+                    break
+                token = resp["nextForwardToken"]
     except logs.exceptions.ResourceNotFoundException:
         print("(no log streams found)")
 
@@ -61,7 +71,7 @@ def fetch_logs(logs, run: dict) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the Glue ETL job and poll for completion")
     parser.add_argument("--job-name", default=JOB_NAME, help=f"Glue job name (default: {JOB_NAME})")
-    parser.add_argument("--region", default="us-east-2")
+    parser.add_argument("--region", default=DEFAULT_REGION)
     args = parser.parse_args()
 
     glue = boto3.client("glue", region_name=args.region)
