@@ -1,11 +1,5 @@
 # Block 2 Plan
 
-## Acceptance criteria
-
-> **Project — Lift the pipeline to AWS**
-> Acceptance criteria (done = all true):
-> Raw data lands in S3, is transformed by Glue (or equivalent), and is query-ready; all infrastructure defined as code (Terraform/CDK), not clicked in the console; pipeline is idempotent (re-runs produce the same result); a cost estimate is documented in the README.
-
 ## Objective
 
 Lift the Block 1 PySpark batch pipeline to AWS. Raw CSVs go to S3, an AWS Glue job runs the same validate/clean/transform logic, output lands as query-ready partitioned Parquet, and all infrastructure is defined in Terraform.
@@ -51,8 +45,6 @@ Block 1's core modules packaged as a zip for Glue's `--extra-py-files`:
 - `schemas.py` — StructType definitions for all 6 tables + `analytic_person`
 - `concepts.py` — concept ID lookup dictionaries
 
-These modules are imported unchanged from Block 1. No adaptation, no inlining. This keeps the tested logic intact and reusable in later blocks (e.g., Block 8 capstone).
-
 ### `scripts/package_lib.py`
 
 Copies `validations.py`, `transforms.py`, `schemas.py`, and `concepts.py` from the Block 1 repo into a zip file (`glue/pipeline_lib.zip`). The zip is uploaded to S3 by Terraform (`aws_s3_object`), not by this script.
@@ -71,7 +63,7 @@ All AWS infrastructure defined as Terraform HCL:
 
 - `main.tf` — provider config, backend
 - `s3.tf` — bucket, lifecycle rules (no versioning — pipeline is idempotent and output is reproducible from source)
-- `iam.tf` — Glue execution role with least-privilege policy: `s3:GetObject` (raw/*, scripts/*), `s3:PutObject`/`s3:DeleteObject` (processed/*), `s3:ListBucket` — all scoped to pipeline bucket ARN; Glue Catalog scoped to `omop_cloud_etl` database; CloudWatch Logs
+- `iam.tf` — Glue execution role with least-privilege policy: `s3:GetObject` (raw/*, scripts/*), `s3:PutObject`/`s3:DeleteObject` (processed/*, processed_$folder$), `s3:ListBucket` — all scoped to pipeline bucket ARN; Glue Catalog scoped to `omop_cloud_etl` database; CloudWatch Logs
 - `glue.tf` — Glue database, catalog table (with partition projection for `year_of_birth_band`), ETL job (pinned to `glue_version = "5.0"` for Spark 3.5.4 / Python 3.11), `aws_s3_object` for `etl_job.py` and `pipeline_lib.zip`
 - `athena.tf` — Athena workgroup with query result location
 - `variables.tf` — parameterized inputs (bucket name, region, tags)
@@ -81,6 +73,14 @@ All AWS infrastructure defined as Terraform HCL:
 
 Triggers the Glue job via `boto3` and polls for completion. Provides a single local command to kick off the cloud pipeline after upload.
 
+### `scripts/verify_output.py`
+
+Verifies the Glue job output: checks that partitioned Parquet exists in S3, downloads and prints `pipeline_metrics.json`, and runs an Athena query against `analytic_person`.
+
+### `scripts/run_all.py`
+
+Chains all pipeline steps in order: package → terraform apply → upload → run Glue job → verify. Accepts `--skip-terraform` for re-runs where infrastructure already exists.
+
 ## Run order
 
 1. `python scripts/package_lib.py` — create `glue/pipeline_lib.zip` from Block 1 modules
@@ -88,6 +88,9 @@ Triggers the Glue job via `boto3` and polls for completion. Provides a single lo
 3. Run `glue/smoke_test.py` as a one-off Glue job — verify all 4 modules import correctly in the Glue runtime and confirm Python/Spark versions
 4. `python scripts/upload_raw.py` — upload Block 1 CSVs to S3 landing zone
 5. `python scripts/run_glue_job.py` — trigger the Glue job and poll for completion
+6. `python scripts/verify_output.py` — verify Parquet, metrics, and Athena query
+
+Or run all steps (except smoke test) with `python scripts/run_all.py`.
 
 ## Porting strategy
 
@@ -105,13 +108,6 @@ Block 1's PySpark logic ports to Glue with these changes:
 | `concepts.py` | Imported unchanged via `--extra-py-files` zip |
 
 The core PySpark modules are not modified. `etl_job.py` imports and calls them exactly as `pipeline.py` does in Block 1, with S3 paths replacing local paths.
-
-## Idempotency
-
-- Glue job bookmarks disabled (`--job-bookmark-option=job-bookmark-disable`) to ensure all input files are always processed on every run
-- `partitionBy` + `mode="overwrite"` uses Spark's default static overwrite — clears the entire table directory before writing, which is intentional
-- Same input CSVs + same job logic = same output (no random state, no timestamps in output)
-- Upload script overwrites S3 raw prefix on each run
 
 ## Testing strategy
 
@@ -143,14 +139,3 @@ Block 2 testing differs from Block 1. The PySpark logic is already tested in Blo
 - Monitoring and alerting
 - New tables or schema changes
 
-## Completion criteria
-
-This plan is complete when:
-- Terraform creates all AWS resources from code
-- Raw CSVs are uploaded to S3
-- The Glue job runs the full pipeline and writes partitioned Parquet to S3
-- Athena can query the processed output
-- Pipeline metrics match Block 1's expected values
-- Re-running the job produces identical output
-- Cost estimate is documented in the README
-- `terraform destroy` tears down everything cleanly

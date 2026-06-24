@@ -225,7 +225,7 @@ def draw_terraform():
 
     # Row 1: S3, IAM, Glue, Athena
     modules = [
-        (1.5, 4.2, "s3.tf\nBucket\nVersioning\nLifecycle", COLORS["s3"]),
+        (1.5, 4.2, "s3.tf\nBucket\nPublic Access Block\nLifecycle", COLORS["s3"]),
         (4.0, 4.2, "iam.tf\nGlue Role\nPolicy", COLORS["iam"]),
         (6.5, 4.2, "glue.tf\nDatabase · Table · Job\nS3 objects: etl_job.py\npipeline_lib.zip", COLORS["glue"]),
         (9.5, 4.2, "athena.tf\nWorkgroup\nResult location", COLORS["catalog"]),

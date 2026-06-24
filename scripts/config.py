@@ -1,0 +1,2 @@
+DEFAULT_BUCKET = "genai-block2-omop-623756711801"
+DEFAULT_REGION = "us-east-2"
