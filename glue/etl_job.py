@@ -115,7 +115,7 @@ analytic = transforms.build_analytic_person(
 output_path = f"{PROCESSED_PATH}analytic_person/"
 log(f"Stage 6: Writing partitioned Parquet to {output_path}")
 analytic.write.partitionBy("year_of_birth_band").mode("overwrite").parquet(output_path)
-analytic_count = analytic.count()
+analytic_count = spark.read.parquet(output_path).count()
 log(f"  Wrote {analytic_count} rows")
 t_build_done = time.time()
 
