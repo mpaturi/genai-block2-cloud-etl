@@ -19,7 +19,7 @@ def run_step(name: str, cmd: list[str], cwd: Path | None = None) -> None:
     print(f"\n{'=' * 60}")
     print(f"  STEP: {name}")
     print(f"{'=' * 60}\n")
-    result = subprocess.run(cmd, cwd=cwd, shell=True)
+    result = subprocess.run(cmd, cwd=cwd)
     if result.returncode != 0:
         print(f"\nFAILED at step: {name} (exit code {result.returncode})")
         sys.exit(result.returncode)
