@@ -1,5 +1,6 @@
 resource "aws_athena_workgroup" "etl" {
-  name = "omop-cloud-etl"
+  name          = "omop-cloud-etl"
+  force_destroy = true
 
   configuration {
     result_configuration {

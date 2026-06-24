@@ -69,7 +69,7 @@
 - [x] Verify `pipeline_metrics.json` row counts match Block 1 expected values
 - [x] Query `analytic_person` via Athena and confirm results
 - [x] Re-run Glue job and confirm output is identical (idempotency)
-- [ ] Run `terraform destroy` and confirm clean teardown
+- [x] Run `terraform destroy` and confirm clean teardown
 - [x] Write README with architecture diagram
 - [x] Document setup and prerequisites
 - [x] Document cost estimate
