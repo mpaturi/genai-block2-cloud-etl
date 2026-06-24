@@ -42,6 +42,8 @@ resource "aws_iam_role_policy" "glue" {
         ]
         Resource = [
           "${aws_s3_bucket.pipeline.arn}/processed/*",
+          # Spark's S3 connector writes this marker on overwrite; without it:
+          # "not authorized to perform: s3:PutObject on resource: processed_$folder$"
           "${aws_s3_bucket.pipeline.arn}/processed_$folder$"
         ]
       },
