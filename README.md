@@ -26,7 +26,7 @@ flowchart LR
     S3_RAW --> GLUE
     S3_SCRIPTS --> GLUE
     GLUE --> S3_PROC
-    S3_PROC --> CATALOG
+    S3_PROC -->|Terraform-defined table| CATALOG
     CATALOG --> ATHENA
 ```
 
