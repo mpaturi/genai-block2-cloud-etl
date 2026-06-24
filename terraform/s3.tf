@@ -27,4 +27,28 @@ resource "aws_s3_bucket_lifecycle_configuration" "pipeline" {
       days = var.processed_lifecycle_days
     }
   }
+
+  rule {
+    id     = "expire-athena-results"
+    status = "Enabled"
+
+    filter {
+      prefix = "athena-results/"
+    }
+
+    expiration {
+      days = 7
+    }
+  }
+
+  rule {
+    id     = "abort-incomplete-uploads"
+    status = "Enabled"
+
+    filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 3
+    }
+  }
 }
