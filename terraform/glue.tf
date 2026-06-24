@@ -105,6 +105,7 @@ resource "aws_glue_job" "etl" {
   glue_version      = "5.0"
   worker_type       = "G.1X"
   number_of_workers = 2
+  timeout           = 30
 
   command {
     name            = "glueetl"
