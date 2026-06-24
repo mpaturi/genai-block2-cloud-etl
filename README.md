@@ -52,6 +52,8 @@ terraform init
 cd ..
 ```
 
+> **Note:** Run `python scripts/package_lib.py` before `terraform plan` or `terraform apply`. Terraform uploads `glue/pipeline_lib.zip` to S3, so the zip must exist and be up to date.
+
 ## Run Order
 
 Run steps individually or use the all-in-one runner:

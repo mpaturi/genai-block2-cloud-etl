@@ -61,8 +61,6 @@ resource "aws_iam_role_policy" "glue" {
         Action = [
           "glue:GetDatabase",
           "glue:GetTable",
-          "glue:GetPartitions",
-          "glue:BatchCreatePartition",
           "glue:BatchGetPartition"
         ]
         Resource = [
