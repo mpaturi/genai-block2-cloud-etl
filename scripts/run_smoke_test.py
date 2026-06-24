@@ -3,6 +3,7 @@
 import argparse
 import sys
 import time
+from pathlib import Path
 
 import boto3
 
@@ -18,7 +19,7 @@ def get_role_arn(iam) -> str:
 
 
 def upload_script(s3, bucket: str) -> None:
-    local_path = str(__import__("pathlib").Path(__file__).resolve().parent.parent / "glue" / "smoke_test.py")
+    local_path = str(Path(__file__).resolve().parent.parent / "glue" / "smoke_test.py")
     print(f"Uploading smoke_test.py -> s3://{bucket}/{SMOKE_SCRIPT_KEY}")
     s3.upload_file(local_path, bucket, SMOKE_SCRIPT_KEY)
 
