@@ -42,6 +42,11 @@ def main() -> None:
              [py, str(SCRIPTS_DIR / "package_lib.py"),
               "--block1-dir", str(args.block1_dir)])
 
+    # Always push the fresh zip/script to S3, even when --skip-terraform is set,
+    # so a stale copy in S3 never silently gets used.
+    run_step("Sync Glue scripts to S3",
+             [py, str(SCRIPTS_DIR / "upload_scripts.py"), "--bucket", args.bucket])
+
     if not args.skip_terraform:
         run_step("Terraform apply",
                  [args.terraform, "apply", "-auto-approve"],
