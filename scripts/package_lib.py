@@ -15,7 +15,8 @@ DEFAULT_BLOCK1_DIR = Path(__file__).resolve().parent.parent.parent / "genai-bloc
 OUTPUT_ZIP = Path(__file__).resolve().parent.parent / "glue" / "pipeline_lib.zip"
 
 _CONFIG_RE = re.compile(r"^from src\.config import REFERENCE_DATE$")
-_SRC_RE = re.compile(r"^from src\.(\w+) import")
+_SRC_FROM_RE = re.compile(r"^from src\.(\w+) import")
+_SRC_IMPORT_RE = re.compile(r"^from src import (\w+)$")
 
 _CONFIG_REPLACEMENT = "from datetime import date\nREFERENCE_DATE = date(2025, 1, 1)\n"
 
@@ -27,8 +28,10 @@ def _rewrite_imports(source: str) -> str:
         stripped = line.strip()
         if _CONFIG_RE.match(stripped):
             result.append(_CONFIG_REPLACEMENT)
-        elif _SRC_RE.match(stripped):
-            result.append(_SRC_RE.sub(r"from \1 import", stripped) + "\n")
+        elif _SRC_FROM_RE.match(stripped):
+            result.append(_SRC_FROM_RE.sub(r"from \1 import", stripped) + "\n")
+        elif _SRC_IMPORT_RE.match(stripped):
+            result.append(_SRC_IMPORT_RE.sub(r"import \1", stripped) + "\n")
         else:
             result.append(line)
     return "".join(result)
