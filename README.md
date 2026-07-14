@@ -89,6 +89,8 @@ python scripts/run_glue_job.py
 python scripts/verify_output.py
 ```
 
+> **Note:** `python scripts/upload_scripts.py --bucket <bucket>` pushes `etl_job.py`/`pipeline_lib.zip` to S3 directly, without a full `terraform apply`. `run_all.py` calls this automatically right after packaging, even with `--skip-terraform`, so a stale copy in S3 never silently gets used.
+
 ## What the Pipeline Does
 
 1. Reads 6 raw CSVs from `s3://bucket/raw/`
@@ -157,6 +159,7 @@ genai-block2-cloud-etl/
 ├── scripts/
 │   ├── package_lib.py        # Zip Block 1 modules for Glue
 │   ├── upload_raw.py         # Upload CSVs to S3
+│   ├── upload_scripts.py     # Push Glue script/zip to S3 directly (bypasses Terraform)
 │   ├── run_smoke_test.py     # Run smoke test as temporary Glue job
 │   ├── run_glue_job.py       # Trigger ETL job and poll for completion
 │   ├── verify_output.py      # Verify Parquet, metrics, and Athena query
