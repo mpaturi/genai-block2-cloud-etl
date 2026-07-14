@@ -154,12 +154,13 @@ def draw_architecture():
     _dashed_arrow(ax, 7.5, 3.0, 4.55, 5.5)
     _dashed_arrow(ax, 8.0, 3.0, 5.0, 8.0)
 
-    # IAM role
-    _box(ax, 7.5, 5.5, 3.0, 1.0,
+    # IAM role (placed below the stage list, which bottoms out at y=4.775,
+    # to avoid overlapping stage 6/7's boxes)
+    _box(ax, 7.5, 4.0, 3.0, 1.0,
          "IAM Role\nGlue execution\nS3 + Catalog + Logs",
          COLORS["iam"], fontsize=8)
 
-    _dashed_arrow(ax, 7.5, 6.0, 4.75, 7.6)
+    _dashed_arrow(ax, 7.5, 4.5, 4.75, 7.6)
 
     plt.tight_layout()
     plt.savefig("docs/architecture.png", dpi=150, bbox_inches="tight",
