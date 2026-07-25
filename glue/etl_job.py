@@ -116,6 +116,8 @@ analytic = transforms.build_analytic_person(
     tables.person, tables.visit, tables.condition,
     tables.drug, tables.measurement,
 )
+# Cache so the count() below reuses this result instead of recomputing the full pipeline.
+analytic = analytic.cache()
 
 # 6. Write partitioned Parquet to S3
 output_path = f"{PROCESSED_PATH}analytic_person/"
