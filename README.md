@@ -89,7 +89,7 @@ python scripts/run_glue_job.py
 python scripts/verify_output.py
 ```
 
-> **Note:** `python scripts/upload_scripts.py --bucket <bucket>` pushes `etl_job.py`/`pipeline_lib.zip` to S3 directly, without a full `terraform apply`. `run_all.py` calls this automatically right after packaging, even with `--skip-terraform`, so a stale copy in S3 never silently gets used.
+> **Note:** `python scripts/upload_scripts.py --bucket <bucket>` pushes `etl_job.py`/`pipeline_lib.zip` to S3 directly, without a full `terraform apply`. `run_all.py` calls this automatically right after the terraform step, even with `--skip-terraform`, so a stale copy in S3 never silently gets used.
 
 ## What the Pipeline Does
 
