@@ -30,26 +30,30 @@ resource "aws_glue_catalog_table" "analytic_person" {
 
     columns {
       name = "person_id"
-      type = "bigint"
-    }
-    columns {
-      name = "gender"
-      type = "string"
-    }
-    columns {
-      name = "year_of_birth"
       type = "int"
     }
     columns {
-      name = "race"
-      type = "string"
+      name = "age"
+      type = "int"
     }
     columns {
-      name = "ethnicity"
-      type = "string"
+      name = "gender_concept_id"
+      type = "int"
     }
     columns {
-      name = "visit_count"
+      name = "total_visit_count"
+      type = "bigint"
+    }
+    columns {
+      name = "outpatient_visit_count"
+      type = "bigint"
+    }
+    columns {
+      name = "inpatient_visit_count"
+      type = "bigint"
+    }
+    columns {
+      name = "er_visit_count"
       type = "bigint"
     }
     columns {
@@ -57,7 +61,7 @@ resource "aws_glue_catalog_table" "analytic_person" {
       type = "bigint"
     }
     columns {
-      name = "drug_count"
+      name = "drug_exposure_count"
       type = "bigint"
     }
     columns {
@@ -65,15 +69,23 @@ resource "aws_glue_catalog_table" "analytic_person" {
       type = "bigint"
     }
     columns {
-      name = "note_count"
-      type = "bigint"
+      name = "has_diabetes"
+      type = "boolean"
     }
     columns {
-      name = "earliest_visit"
-      type = "date"
+      name = "has_hypertension"
+      type = "boolean"
     }
     columns {
-      name = "latest_visit"
+      name = "latest_hba1c"
+      type = "double"
+    }
+    columns {
+      name = "latest_systolic_bp"
+      type = "double"
+    }
+    columns {
+      name = "latest_measurement_date"
       type = "date"
     }
   }

@@ -42,7 +42,12 @@ def log(msg):
 def read_csv(name, schema):
     path = f"{RAW_PATH}{name}.csv"
     log(f"Reading {path}")
-    return spark.read.csv(path, header=True, schema=schema)
+    # note_text can contain embedded "\n\n" (e.g. "CHIEF COMPLAINT: ...\n\nASSESSMENT
+    # AND PLAN: ..."). Spark's default single-line CSV mode treats a newline inside a
+    # quoted field as a new row boundary, silently corrupting NOTE rows into extra
+    # null-filled phantom rows -- the same bug found and fixed in Block 1's io_utils.py.
+    # multiLine=True tells it to respect CSV quoting across physical lines instead.
+    return spark.read.csv(path, header=True, schema=schema, multiLine=True)
 
 
 def validation_to_dict(results):
