@@ -42,7 +42,12 @@ def log(msg):
 def read_csv(name, schema):
     path = f"{RAW_PATH}{name}.csv"
     log(f"Reading {path}")
-    return spark.read.csv(path, header=True, schema=schema)
+    # note_text can contain embedded "\n\n" (e.g. "CHIEF COMPLAINT: ...\n\nASSESSMENT
+    # AND PLAN: ..."). Spark's default single-line CSV mode treats a newline inside a
+    # quoted field as a new row boundary, silently corrupting NOTE rows into extra
+    # null-filled phantom rows -- the same bug found and fixed in Block 1's io_utils.py.
+    # multiLine=True tells it to respect CSV quoting across physical lines instead.
+    return spark.read.csv(path, header=True, schema=schema, multiLine=True)
 
 
 def validation_to_dict(results):
@@ -111,12 +116,14 @@ analytic = transforms.build_analytic_person(
     tables.person, tables.visit, tables.condition,
     tables.drug, tables.measurement,
 )
+# Cache so the count() below reuses this result instead of recomputing the full pipeline.
+analytic = analytic.cache()
 
 # 6. Write partitioned Parquet to S3
 output_path = f"{PROCESSED_PATH}analytic_person/"
 log(f"Stage 6: Writing partitioned Parquet to {output_path}")
 analytic.write.partitionBy("year_of_birth_band").mode("overwrite").parquet(output_path)
-analytic_count = spark.read.parquet(output_path).count()
+analytic_count = analytic.count()
 log(f"  Wrote {analytic_count} rows")
 t_build_done = time.time()
 

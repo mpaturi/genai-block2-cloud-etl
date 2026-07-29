@@ -154,12 +154,13 @@ def draw_architecture():
     _dashed_arrow(ax, 7.5, 3.0, 4.55, 5.5)
     _dashed_arrow(ax, 8.0, 3.0, 5.0, 8.0)
 
-    # IAM role
-    _box(ax, 7.5, 5.5, 3.0, 1.0,
+    # IAM role (placed below the stage list, which bottoms out at y=4.775,
+    # to avoid overlapping stage 6/7's boxes)
+    _box(ax, 7.5, 4.0, 3.0, 1.0,
          "IAM Role\nGlue execution\nS3 + Catalog + Logs",
          COLORS["iam"], fontsize=8)
 
-    _dashed_arrow(ax, 7.5, 6.0, 4.75, 7.6)
+    _dashed_arrow(ax, 7.5, 4.5, 4.75, 7.6)
 
     plt.tight_layout()
     plt.savefig("docs/architecture.png", dpi=150, bbox_inches="tight",
@@ -253,32 +254,34 @@ def draw_terraform():
 # ── Diagram 4: S3 Bucket Layout ─────────────────────────────────────────────
 
 def draw_s3_layout():
-    fig, ax = plt.subplots(figsize=(7, 8))
-    ax.set_xlim(0, 7)
+    fig, ax = plt.subplots(figsize=(9, 8))
+    ax.set_xlim(0, 9)
     ax.set_ylim(0, 8)
     ax.axis("off")
     ax.set_title("Block 2 — S3 Bucket Layout", fontsize=TITLE_SIZE,
                  fontfamily=FONT, fontweight="bold", pad=15)
 
     # Bucket
-    _box(ax, 3.5, 7.0, 4.0, 0.7,
+    _box(ax, 4.5, 7.0, 4.5, 0.7,
          "s3://<bucket>/", COLORS["s3"], fontsize=10, bold=True)
 
-    # Three prefixes
+    # Four prefixes
     prefixes = [
-        (1.5, 5.5, "raw/", COLORS["s3"],
+        (1.0, 5.5, "raw/", COLORS["s3"],
          "person.csv\nvisit_occurrence.csv\ncondition_occurrence.csv\n"
          "drug_exposure.csv\nmeasurement.csv\nnote.csv"),
-        (3.5, 5.5, "processed/", COLORS["glue"],
+        (3.0, 5.5, "processed/", COLORS["glue"],
          "analytic_person/\n  year_of_birth_band=1940s/\n"
          "  year_of_birth_band=1950s/\n  ...\npipeline_metrics.json"),
         (5.5, 5.5, "scripts/", COLORS["catalog"],
          "etl_job.py\npipeline_lib.zip"),
+        (7.8, 5.5, "athena-results/", COLORS["iam"],
+         "Athena query result\nfiles (CSV + metadata)\nexpires after 7 days\n(s3.tf lifecycle rule)"),
     ]
 
     for px, py, title, color, contents in prefixes:
         _box(ax, px, py, 1.6, 0.6, title, color, fontsize=9, bold=True)
-        _arrow(ax, 3.5, 6.6, px, 5.85)
+        _arrow(ax, 4.5, 6.6, px, 5.85)
 
         # Contents below
         ax.text(px, py - 0.55, contents, ha="center", va="top",

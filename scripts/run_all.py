@@ -49,6 +49,11 @@ def main() -> None:
     else:
         print("\n  (skipping terraform apply)")
 
+    # Always push the fresh zip/script to S3, even when --skip-terraform is set,
+    # so a stale copy in S3 never silently gets used.
+    run_step("Sync Glue scripts to S3",
+             [py, str(SCRIPTS_DIR / "upload_scripts.py"), "--bucket", args.bucket])
+
     run_step("Upload raw CSVs to S3",
              [py, str(SCRIPTS_DIR / "upload_raw.py"),
               "--bucket", args.bucket,

@@ -89,6 +89,8 @@ python scripts/run_glue_job.py
 python scripts/verify_output.py
 ```
 
+> **Note:** `python scripts/upload_scripts.py --bucket <bucket>` pushes `etl_job.py`/`pipeline_lib.zip` to S3 directly, without a full `terraform apply`. `run_all.py` calls this automatically right after the terraform step, even with `--skip-terraform`, so a stale copy in S3 never silently gets used.
+
 ## What the Pipeline Does
 
 1. Reads 6 raw CSVs from `s3://bucket/raw/`
@@ -108,6 +110,22 @@ SELECT year_of_birth_band, COUNT(*) AS cnt
 FROM omop_cloud_etl.analytic_person
 GROUP BY 1 ORDER BY 1;
 ```
+
+## Expected Row Counts
+
+Numbers from the most recent Glue job run against Block 1's data (11-condition/17-drug whitelist). These will match [Block 1's own row counts](../genai-block1-batch-pipeline/README.md#expected-row-counts) exactly, since Block 2 processes the same `data/raw/*.csv` files, just uploaded to S3 and transformed by Glue instead of a local Spark session.
+
+| Table | Raw | Cleaned | Dropped |
+|---|---:|---:|---:|
+| person | 11,784 | 11,436 | 348 |
+| visit_occurrence | 23,568 | 22,188 | 1,380 |
+| condition_occurrence | 14,264 | 13,639 | 625 |
+| drug_exposure | 6,322 | 5,860 | 462 |
+| measurement | 24,616 | 22,881 | 1,735 |
+| note | 23,568 | 21,535 | 2,033 |
+| **analytic_person** | — | **11,436** | — |
+
+Raw validation detects known injected data-quality issues across all 6 tables; after cleaning, the hard gate passes with 0 violations. Pipeline stage timings from this run: validation (raw) 24.85s, cleaning 6.33s, validation (cleaned) 12.17s, build + write 9.72s — 59.75s total script time (excludes Glue's own job startup/provisioning overhead).
 
 ## Cost Estimate
 
@@ -141,6 +159,7 @@ genai-block2-cloud-etl/
 ├── scripts/
 │   ├── package_lib.py        # Zip Block 1 modules for Glue
 │   ├── upload_raw.py         # Upload CSVs to S3
+│   ├── upload_scripts.py     # Push Glue script/zip to S3 directly (bypasses Terraform)
 │   ├── run_smoke_test.py     # Run smoke test as temporary Glue job
 │   ├── run_glue_job.py       # Trigger ETL job and poll for completion
 │   ├── verify_output.py      # Verify Parquet, metrics, and Athena query
