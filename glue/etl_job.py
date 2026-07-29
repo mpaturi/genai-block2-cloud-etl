@@ -116,12 +116,14 @@ analytic = transforms.build_analytic_person(
     tables.person, tables.visit, tables.condition,
     tables.drug, tables.measurement,
 )
+# Cache so the count() below reuses this result instead of recomputing the full pipeline.
+analytic = analytic.cache()
 
 # 6. Write partitioned Parquet to S3
 output_path = f"{PROCESSED_PATH}analytic_person/"
 log(f"Stage 6: Writing partitioned Parquet to {output_path}")
 analytic.write.partitionBy("year_of_birth_band").mode("overwrite").parquet(output_path)
-analytic_count = spark.read.parquet(output_path).count()
+analytic_count = analytic.count()
 log(f"  Wrote {analytic_count} rows")
 t_build_done = time.time()
 

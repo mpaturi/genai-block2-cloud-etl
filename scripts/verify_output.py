@@ -60,7 +60,19 @@ def check_metrics(s3, bucket: str) -> bool:
 
 
 def check_athena(athena, bucket: str) -> bool:
-    query = f"SELECT year_of_birth_band, COUNT(*) as cnt FROM {DATABASE}.{TABLE} GROUP BY 1 ORDER BY 1"
+    # Select every column, not just the partition key + a count -- a wrong
+    # column name/type in the Glue Catalog table won't error, it silently
+    # returns NULL for that column. These 12 columns are populated by
+    # COALESCE(...) or upstream null-dropping in Block 1's transforms.py,
+    # so they should never be null in real output; a null here means the
+    # Catalog is pointing at the wrong column.
+    NOT_NULL_COLUMNS = [
+        "person_id", "age", "gender_concept_id", "total_visit_count",
+        "outpatient_visit_count", "inpatient_visit_count", "er_visit_count",
+        "condition_count", "drug_exposure_count", "measurement_count",
+        "has_diabetes", "has_hypertension",
+    ]
+    query = f"SELECT * FROM {DATABASE}.{TABLE} LIMIT 20"
 
     print(f"\n=== Check 3: Athena query ===")
     print(f"  Query: {query}")
@@ -91,12 +103,29 @@ def check_athena(athena, bucket: str) -> bool:
 
     results = athena.get_query_results(QueryExecutionId=execution_id)
     rows = results["ResultSet"]["Rows"]
-    print(f"  Results ({len(rows) - 1} partitions):")
-    for row in rows[1:]:
-        band = row["Data"][0].get("VarCharValue", "")
-        count = row["Data"][1].get("VarCharValue", "")
-        print(f"    {band:20s}  {count:>6}")
+    if len(rows) <= 1:
+        print("  FAIL: query returned no data rows")
+        return False
 
+    header = [c.get("VarCharValue", "") for c in rows[0]["Data"]]
+    data_rows = rows[1:]
+
+    bad_columns = []
+    for col_name in NOT_NULL_COLUMNS:
+        if col_name not in header:
+            bad_columns.append(f"{col_name} (missing from result set)")
+            continue
+        idx = header.index(col_name)
+        if all("VarCharValue" not in r["Data"][idx] for r in data_rows):
+            bad_columns.append(f"{col_name} (all NULL)")
+
+    if bad_columns:
+        print(f"  FAIL: schema mismatch detected -- these columns are wrong or all-NULL:")
+        for bc in bad_columns:
+            print(f"    {bc}")
+        return False
+
+    print(f"  Checked {len(data_rows)} rows across {len(NOT_NULL_COLUMNS)} not-null columns")
     print("  PASS")
     return True
 
